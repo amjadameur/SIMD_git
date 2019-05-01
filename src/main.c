@@ -73,8 +73,8 @@ void drawObj(window_t* w, int width, int height) {
 			y[i] = (int) (height/2)*(vect3tmp.y + 1);
 		}
 
-		findRgb(facetmp, &rOut, &gOut, &bOut);
-		WindowDrawTriangle(w, x[0], y[0], x[1], y[1], x[2], y[2], rOut, gOut, bOut);
+		//findRgb(facetmp, &rOut, &gOut, &bOut);
+		WindowDrawTriangle(w, x[0], y[0], x[1], y[1], x[2], y[2], 255, 0, 0);
 	}
 }
 
@@ -88,7 +88,7 @@ int main( int argc, char ** argv ) {
 
 	int done = false;
 
-	ModelLoad(mainwindow, "data/head.obj");
+	ModelLoad("bin/data/head.obj");
 
 	// Tant que l'utilisateur ne ferme pas la fenêtre
 	while ( !done ) {

@@ -53,6 +53,6 @@ face_t			ModelGetFace		( int idx );
 /**
  * Charge un modèle 3D à partir du fichier spécifié
  */
-bool			ModelLoad		(window_t* w, char * objfilename );
+bool			ModelLoad		(char * objfilename );
 
 #endif // __MODEL_H__

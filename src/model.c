@@ -84,20 +84,17 @@ void showVectors(void) {
 	}
 }
 
-bool ModelLoad(window_t* w, char * objfilename ) {
+bool ModelLoad(char * objfilename) {
 	// Fonction à implementer
-	const int width		= 1024;
-	const int height	= 768;
-
-	size_t buffer_size = 80;
+	size_t buffer_size = 100;
 	char *buffer = (char*)malloc(buffer_size * sizeof(char));
 
 	FILE *file = fopen(objfilename, "r");
 
-	if(NULL == file)
+	if(file == NULL)
 	{
+		printf("couldn't read file\n");
 		return false;
-		printf("wrong\n");
 	}
 
 	g_vertex   = Vector();
@@ -147,7 +144,7 @@ bool ModelLoad(window_t* w, char * objfilename ) {
 		buffer[0] = '\0';
 	}
 
-	///showVectors();
+	showVectors();
 
 	vect3tmp = NULL;
 	facetmp = NULL;
