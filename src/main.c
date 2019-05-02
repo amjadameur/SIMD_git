@@ -118,8 +118,8 @@ void drawObj(window_t* w, int width, int height) {
 		for (int i = 0; i < 3; ++i) {
 			vertexIdx = facetmp.v[i];				
 			vect3tmp[i] = ModelGetVertex(vertexIdx);
-			vect3tmp[i].x = (width/2) *(vect3tmp[i].x + 1);
-			vect3tmp[i].y = (height/2)*(vect3tmp[i].y + 1);
+			x[i] = (width/2) *(vect3tmp[i].x + 1);
+			y[i] = (height/2)*(vect3tmp[i].y + 1);
 		}
 		
 		// on prend le premier élement comme référence :
@@ -129,7 +129,7 @@ void drawObj(window_t* w, int width, int height) {
 		printf("1 : "); showVect(vect3tmp[1]);
 		printf("2 : "); showVect(vect3tmp[2]);
 		
-		cProduct = crossProduct(vect3tmp[0], vect3tmp[2], vect3tmp[1]);
+		cProduct = crossProduct(vect3tmp[0], vect3tmp[1], vect3tmp[2]);
 		
 		printf("cProduct : "); showVect(cProduct);
 
@@ -139,7 +139,7 @@ void drawObj(window_t* w, int width, int height) {
 		//dProduct = 1;
 		
 		//findRgb(facetmp, &rOut, &gOut, &bOut);
-		WindowDrawTriangle(w, (int) vect3tmp[0].x, (int) vect3tmp[0].y, (int) vect3tmp[1].x, (int) vect3tmp[1].y, (int) vect3tmp[2].x, (int) vect3tmp[2].y, dProduct*255, dProduct*255, dProduct*255);
+		WindowDrawTriangle(w, x[0], y[0], x[1], y[1], x[2], y[2], dProduct*255, dProduct*255, dProduct*255);
 	}
 }
 
