@@ -109,7 +109,7 @@ void drawObj(window_t* w, int width, int height) {
 	int x[3]; int y[3];
 	Uint8 rOut = 255, gOut = 0, bOut = 0;
 
-	vec3f_t luminance = {1, 0, 0};
+	vec3f_t luminance = {0, 1, 0};
 	vec3f_t cProduct= {0, 0, 0};
 	float dProduct = 0;
 
@@ -118,25 +118,15 @@ void drawObj(window_t* w, int width, int height) {
 		for (int i = 0; i < 3; ++i) {
 			vertexIdx = facetmp.v[i];				
 			vect3tmp[i] = ModelGetVertex(vertexIdx);
-			x[i] = (width/2) *(vect3tmp[i].x + 1);
-			y[i] = (height/2)*(vect3tmp[i].y + 1);
+			x[i] = ((width-1)/2) *(vect3tmp[i].x + 1);
+			y[i] = ((height-1)/2)*(vect3tmp[i].y + 1);
+			printf("x : %d, y ; %d\n", x[i], y[i]);
 		}
 		
-		// on prend le premier élement comme référence :
-		printf("\n\n\n");
-	
-		printf("0 : "); showVect(vect3tmp[0]);
-		printf("1 : "); showVect(vect3tmp[1]);
-		printf("2 : "); showVect(vect3tmp[2]);
-		
 		cProduct = crossProduct(vect3tmp[0], vect3tmp[1], vect3tmp[2]);
-		
-		printf("cProduct : "); showVect(cProduct);
-
 		dProduct = dotProduct(luminance, cProduct);
+
 		dProduct =(dProduct < 0) ? 0 : dProduct;
-		printf("dProduct : %f\n", dProduct);		
-		//dProduct = 1;
 		
 		//findRgb(facetmp, &rOut, &gOut, &bOut);
 		WindowDrawTriangle(w, x[0], y[0], x[1], y[1], x[2], y[2], dProduct*255, dProduct*255, dProduct*255);
@@ -162,8 +152,11 @@ int main( int argc, char ** argv ) {
 		done = EventsUpdate( mainwindow );
 
 		// Effacement de l'écran avec une couleur
-		WindowDrawClearColor( mainwindow, 0, 0, 0);
+		//WindowDrawClearColor( mainwindow, 0, 0, 0);
 
+	//	WindowDrawLine(mainwindow, 0, 0, mainwindow->width-1, mainwindow->height-1, 255, 0, 0);
+		//WindowDrawLine(mainwindow, 0, mainwindow->height-1, mainwindow->width-1, 0, 255, 0, 0);
+		
 		drawObj(mainwindow, width, height);
 
 //		exit(0);

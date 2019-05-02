@@ -1,4 +1,4 @@
-﻿#include "window.h"
+#include "window.h"
 
 static void WindowUpdateTexture( window_t * w ) {
 	Uint32 * dst;
@@ -119,7 +119,7 @@ void WindowSetTitle( window_t * w, const char * title ) {
 
 void WindowDrawPoint( window_t * w, int x, int y, Uint8 r, Uint8 g, Uint8 b ) {
 	// Fonction à implementer
-	Uint8 * ptr = w->framebuffer + 4*x + y*(w->pitch);
+	Uint8 * ptr = w->framebuffer + 4*x + (w->height-1)*w->pitch - y*w->pitch;
 	*ptr++ = b;
 	*ptr++ = g;
 	*ptr++ = r;
