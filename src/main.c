@@ -8,6 +8,9 @@
 #include "string.h"
 #include "math.h"
 
+
+#define MINUS_INF -99999
+
 void tgaRgb(stbi_uc* data, int x, int y, int width, Uint8* r, Uint8* g, Uint8* b) {
 	Uint8 * ptr = data + 3*(x + y*width);
 	*r = *ptr++;
@@ -80,9 +83,9 @@ vec3f_t crossProduct(vec3f_t a, vec3f_t b, vec3f_t c) {
 
 	//showVect(vProduct);
 	// Normalizing
-	float magX = pow(vProduct.x, 2);
-	float magY = pow(vProduct.y, 2);
-	float magZ = pow(vProduct.z, 2);
+	float magX = vProduct.x*vProduct.x;
+	float magY = vProduct.y*vProduct.y;
+	float magZ = vProduct.z*vProduct.z;
 
 	float magnitude = sqrt(magX+magY+magZ);
 
@@ -109,7 +112,8 @@ void drawObj(window_t* w, int width, int height) {
 	int x[3]; int y[3];
 	Uint8 rOut = 255, gOut = 0, bOut = 0;
 
-	vec3f_t luminance = {0, 1, 0};
+	vec3f_t luminance = {1, 0, 0};
+	
 	vec3f_t cProduct= {0, 0, 0};
 	float dProduct = 0;
 
@@ -120,16 +124,64 @@ void drawObj(window_t* w, int width, int height) {
 			vect3tmp[i] = ModelGetVertex(vertexIdx);
 			x[i] = ((width-1)/2) *(vect3tmp[i].x + 1);
 			y[i] = ((height-1)/2)*(vect3tmp[i].y + 1);
-			printf("x : %d, y ; %d\n", x[i], y[i]);
 		}
 		
-		cProduct = crossProduct(vect3tmp[0], vect3tmp[1], vect3tmp[2]);
+		cProduct = crossProduct(vect3tmp[0], vect3tmp[1], vect3tmp[2]);	
 		dProduct = dotProduct(luminance, cProduct);
 
 		dProduct =(dProduct < 0) ? 0 : dProduct;
+		dProduct =(dProduct > 1) ? 1 : dProduct;
 		
 		//findRgb(facetmp, &rOut, &gOut, &bOut);
 		WindowDrawTriangle(w, x[0], y[0], x[1], y[1], x[2], y[2], dProduct*255, dProduct*255, dProduct*255);
+	}
+}
+
+
+int minInt2(int a, int b) {
+	return (a < b) ? a : b;
+}
+
+int minInt3(int a, int b, int c) {
+	return minInt2(a, minInt2(b, c));
+}
+
+int maxInt2(int a, int b) {
+	return (a > b) ? a : b;
+}
+
+int maxInt3(int a, int b, int c) {
+	return maxInt2(a, maxInt2(b, c));
+}
+
+void drawObjZ(window_t* w, int **zBuffer, int width, int height) {
+	// Draw obj file
+	vec3f_t vect3tmp[3];
+	face_t  facetmp;
+	int vertexIdx = 0;
+	int x[3]; int y[3];
+	int z[3], zMax;
+
+
+	for (int r = 0; r < w->width; ++r) {
+		for (int c = 0; c < w->height; ++c) {
+			zBuffer[r][c] = MINUS_INF;
+		}
+	}
+
+	for (int j = 0; j < ModelFaces()->count; ++j) {
+		facetmp = ModelGetFace(j);
+		for (int i = 0; i < 3; ++i) {
+			vertexIdx = facetmp.v[i];				
+			vect3tmp[i] = ModelGetVertex(vertexIdx);
+			x[i] = ((width-1)/2) *(vect3tmp[i].x + 1);
+			y[i] = ((height-1)/2)*(vect3tmp[i].y + 1);
+			z[i] = ((DEPTH-1)/2)*(vect3tmp[i].z + 1);
+		}
+		
+		zMax = maxInt3(z[0], z[1], z[2]);
+		if (zMax > DEPTH) printf("zMax_main : %d\n", zMax);
+		WindowDrawTriangleZ(w, zMax, zBuffer, x[0], y[0], x[1], y[1], x[2], y[2], 255, 255, 255);
 	}
 }
 
@@ -145,6 +197,11 @@ int main( int argc, char ** argv ) {
 
 	ModelLoad("bin/data/head.obj");
 
+	int** zBuffer = (int**) malloc(width*sizeof(int*));
+	for (int c = 0; c < width; ++c)	{
+		zBuffer[c] = (int*) malloc(height*sizeof(int));
+	}
+
 	// Tant que l'utilisateur ne ferme pas la fenêtre
 	while ( !done ) {
 
@@ -152,14 +209,9 @@ int main( int argc, char ** argv ) {
 		done = EventsUpdate( mainwindow );
 
 		// Effacement de l'écran avec une couleur
-		//WindowDrawClearColor( mainwindow, 0, 0, 0);
-
-	//	WindowDrawLine(mainwindow, 0, 0, mainwindow->width-1, mainwindow->height-1, 255, 0, 0);
-		//WindowDrawLine(mainwindow, 0, mainwindow->height-1, mainwindow->width-1, 0, 255, 0, 0);
+		WindowDrawClearColor( mainwindow, 0, 0, 0);
 		
-		drawObj(mainwindow, width, height);
-
-//		exit(0);
+		drawObjZ(mainwindow, zBuffer, width, height);
 
 		WindowUpdate( mainwindow );
 

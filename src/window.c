@@ -173,3 +173,48 @@ void WindowDrawTriangle( window_t * w, int x0, int y0, int x1, int y1, int x2, i
 	}
 	
 }
+
+void WindowDrawPointZ( window_t * w, int zMax, int **zBuffer, int x, int y, Uint8 r, Uint8 g, Uint8 b ) {
+	if(zBuffer[x][y]<zMax) {
+		zBuffer[x][y] = zMax;
+
+		Uint8 * ptr = w->framebuffer + 4*x + (w->height-1)*w->pitch - y*w->pitch;
+		
+		if (DEPTH-zMax < 0) printf("zmax : %d", zMax);
+
+		*ptr++ = (DEPTH-zMax);
+		*ptr++ = (DEPTH-zMax);
+		*ptr++ = (DEPTH-zMax);
+		*ptr = 255;	
+	}
+}
+
+void WindowDrawLineZ(window_t * w, int zMax, int **zBuffer, int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b )
+{
+	int dx = abs(x1-x0), sx = x0<x1 ? 1 : -1;
+	int dy = abs(y1-y0), sy = y0<y1 ? 1 : -1; 
+	int err = (dx>dy ? dx : -dy)/2, e2;
+
+	for(;;){
+		WindowDrawPointZ(w, zMax, zBuffer, x0, y0, r, g, b);
+		if (x0==x1 && y0==y1) break;
+		e2 = err;
+		if (e2 >-dx) { err -= dy; x0 += sx; }
+		if (e2 < dy) { err += dx; y0 += sy; }
+	}
+}
+void WindowDrawTriangleZ( window_t * w, int zMax, int **zBuffer, int x0, int y0, int x1, int y1, int x2, int y2, Uint8 r, Uint8 g, Uint8 b ) { 
+	int dx = abs(x1-x0), sx = x0<x1 ? 1 : -1;
+	int dy = abs(y1-y0), sy = y0<y1 ? 1 : -1; 
+	int err = (dx>dy ? dx : -dy)/2, e2;
+
+	for(;;){
+		WindowDrawLineZ(w, zMax, zBuffer, x0, y0, x2, y2, r, g, b);
+		if (x0==x1 && y0==y1) break;
+		e2 = err;
+		if (e2 >-dx) { err -= dy; x0 += sx; }
+		if (e2 < dy) { err += dx; y0 += sy; }
+	}	
+}
+
+

@@ -9,6 +9,7 @@
 #include "SDL2/SDL.h"
 
 
+#define DEPTH 255
 
 /**
  * Définition des types
@@ -57,14 +58,12 @@ void 			WindowSetTitle		( window_t * w, const char * title );
  * Dessine un point coloré dans la fenêtre
  */
 void			WindowDrawPoint		( window_t * w, int x, int y, Uint8 r, Uint8 g, Uint8 b );
-
-/**
- * Dessine une ligne colorée dans la fenêtre
- */
 void			WindowDrawLine		( window_t * w, int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b );
-
 void 			WindowDrawTriangle  ( window_t * w, int x0, int y0, int x1, int y1, int x2, int y2, Uint8 r, Uint8 g, Uint8 b );
 
 
+void			WindowDrawPointZ	( window_t * w, int zMax, int **zBuffer, int x, int y, Uint8 r, Uint8 g, Uint8 b );
+void			WindowDrawLineZ		( window_t * w, int zMax, int **zBuffer, int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b );
+void 			WindowDrawTriangleZ ( window_t * w, int zMax, int **zBuffer, int x0, int y0, int x1, int y1, int x2, int y2, Uint8 r, Uint8 g, Uint8 b );
 
 #endif //__WINDOW_H__
