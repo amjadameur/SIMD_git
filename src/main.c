@@ -7,6 +7,11 @@
 #include "stb_image.h"
 #include "string.h"
 #include "math.h"
+#include "sys/time.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+
 
 typedef struct tga_info {
 	int tgaWidth;
@@ -135,6 +140,11 @@ int main( int argc, char ** argv ) {
 	const int width		= 1024;
 	const int height	= 768;
 
+	unsigned int fps = 0;
+	char *windowTitle = (char*) malloc(15*sizeof(char));
+
+	unsigned long int elapsedTimePerFrame  = 0;
+
 	// Ouverture d'une nouvelle fenêtre
 	window_t * mainwindow = WindowInit( width, height, 4 );
 
@@ -142,13 +152,13 @@ int main( int argc, char ** argv ) {
 
 
 	///// Load obj file ///////////////////////////////////////////////////////////////////
-	ModelLoad("bin/data/head.obj");
+	ModelLoad("bin/data/diablo.obj");
 
 	///// TGA //////////////////////////////////////////////////////////////
 	int tgaWidth, tgaHeight; 
 	int comp;
 	int req_comp = 3; // RGB
-	unsigned char* tgaIm = stbi_tga_load("bin/data/head_diffuse.tga", &tgaWidth, &tgaHeight, &comp, req_comp);
+	unsigned char* tgaIm = stbi_tga_load("bin/data/diablo_diffuse.tga", &tgaWidth, &tgaHeight, &comp, req_comp);
 
 	tgaInfo tgaData = {tgaWidth, tgaHeight, tgaIm};
 
@@ -160,8 +170,11 @@ int main( int argc, char ** argv ) {
 
 	//////////////////////////////////////////////////////////////////////
 
+	struct timeval timeBefore, timeAfter;
+
 	// Tant que l'utilisateur ne ferme pas la fenêtre
 	while ( !done ) {
+		gettimeofday(&timeBefore, NULL);
 
 		// Mise à jour et traitement des evênements de la fenêtre
 		done = EventsUpdate( mainwindow );
@@ -173,6 +186,15 @@ int main( int argc, char ** argv ) {
 
 		WindowUpdate( mainwindow );
 
+		gettimeofday(&timeAfter, NULL);
+
+		elapsedTimePerFrame = (timeAfter.tv_sec - timeBefore.tv_sec)*1000000 + (timeAfter.tv_usec - timeBefore.tv_usec);
+		
+		fps = (unsigned int) (1000000/elapsedTimePerFrame);
+
+		sprintf(windowTitle, "FPS : %u", fps);
+
+		WindowSetTitle(mainwindow, windowTitle);
 	}
 
 
