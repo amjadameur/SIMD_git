@@ -6,9 +6,18 @@
 #include "window.h"
 
 
+
+   
+
 /**
  * Définition des prototypes de fonctions
  */
+
+/**
+   Libérer la mémoire allouée aux vecteurs :
+*/
+void 			freeVectors         ();
+
 
 /**
  * Retourne la liste des sommets du modèle

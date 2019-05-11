@@ -5,6 +5,13 @@ vector_t * g_norm;
 vector_t * g_texcoord;
 vector_t * g_face;
 
+void freeVectors () {
+	VectorDelete(g_vertex);
+	VectorDelete(g_norm);
+	VectorDelete(g_texcoord);
+	VectorDelete(g_face);
+}
+
 vector_t * ModelVertices() {
 	return g_vertex;
 }
@@ -49,9 +56,6 @@ void showVectors(void) {
 	int f1[3]; int f2[3]; int f3[3];
 
 	printf("\n");
-	printf("\n");
-	printf("\n");
-	printf("\n");
 
 	for (int i = 0; i < g_vertex->count; ++i)
 	{
@@ -72,6 +76,7 @@ void showVectors(void) {
 		printf("vn %f %f %f\n", ModelGetNormal(i).x, ModelGetNormal(i).y, ModelGetNormal(i).z);
 	}
 
+	printf("\n");
 
 	for (int i = 0; i < g_face->count; ++i)
 	{
@@ -82,6 +87,8 @@ void showVectors(void) {
 		}
 		printf("f %d/%d/%d %d/%d/%d %d/%d/%d\n", f1[0], f2[0], f3[0], f1[1], f2[1], f3[1], f1[2], f2[2], f3[2]);
 	}
+
+	printf("\n");
 }
 
 bool ModelLoad(char * objfilename) {

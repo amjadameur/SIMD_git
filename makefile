@@ -6,7 +6,7 @@ CFLAGS 		= -W -Wall
 
 LINKER 		= g++ -o
 
-LFLAGS 		= -Wall -ggdb -pg -g -O0 -I. -lm -lSDL2 
+LFLAGS 		= -Wall -pg -O0 -I. -lm -lSDL2 
 
 SRCDIR 		= src
 OBJDIR 		= obj

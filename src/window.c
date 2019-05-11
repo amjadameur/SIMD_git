@@ -138,53 +138,14 @@ void WindowDrawClearColor( window_t * w, Uint8 r, Uint8 g, Uint8 b ) {
 }
 
 
-void WindowDrawLine(window_t * w, int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b )
-{
-	int dx = abs(x1-x0), sx = x0<x1 ? 1 : -1;
-	int dy = abs(y1-y0), sy = y0<y1 ? 1 : -1; 
-	int err = (dx>dy ? dx : -dy)/2, e2;
-
-	for(;;){
-		WindowDrawPoint(w, x0, y0, r, g, b);
-		if (x0==x1 && y0==y1) break;
-		e2 = err;
-		if (e2 >-dx) { err -= dy; x0 += sx; }
-		if (e2 < dy) { err += dx; y0 += sy; }
-	}
-}
-
-
-void WindowDrawTriangle( window_t * w, int x0, int y0, int x1, int y1, int x2, int y2, Uint8 r, Uint8 g, Uint8 b ) { 
-	// Fonction à implementer
-/*	WindowDrawLine(w, x0, y0, x1, y1, r, g, b);
-	WindowDrawLine(w, x1, y1, x2, y2, r, g, b);
-	WindowDrawLine(w, x2, y2, x0, y0, r, g, b);
-*/
-	int dx = abs(x1-x0), sx = x0<x1 ? 1 : -1;
-	int dy = abs(y1-y0), sy = y0<y1 ? 1 : -1; 
-	int err = (dx>dy ? dx : -dy)/2, e2;
-
-	for(;;){
-		WindowDrawLine(w, x0, y0, x2, y2, r, g, b);
-		if (x0==x1 && y0==y1) break;
-		e2 = err;
-		if (e2 >-dx) { err -= dy; x0 += sx; }
-		if (e2 < dy) { err += dx; y0 += sy; }
-	}
-	
-}
-
 void WindowDrawPointZ( window_t * w, int zMax, int **zBuffer, int x, int y, Uint8 r, Uint8 g, Uint8 b ) {
 	if(zBuffer[x][y]<zMax) {
 		zBuffer[x][y] = zMax;
 
-		Uint8 * ptr = w->framebuffer + 4*x + (w->height-1)*w->pitch - y*w->pitch;
-		
-		if (DEPTH-zMax < 0) printf("zmax : %d", zMax);
-
-		*ptr++ = (DEPTH-zMax);
-		*ptr++ = (DEPTH-zMax);
-		*ptr++ = (DEPTH-zMax);
+		Uint8 * ptr = w->framebuffer + 4*x + (w->height-1)*w->pitch - y*w->pitch;		
+		*ptr++ = r;
+		*ptr++ = g;
+		*ptr++ = b;
 		*ptr = 255;	
 	}
 }
@@ -203,6 +164,7 @@ void WindowDrawLineZ(window_t * w, int zMax, int **zBuffer, int x0, int y0, int 
 		if (e2 < dy) { err += dx; y0 += sy; }
 	}
 }
+
 void WindowDrawTriangleZ( window_t * w, int zMax, int **zBuffer, int x0, int y0, int x1, int y1, int x2, int y2, Uint8 r, Uint8 g, Uint8 b ) { 
 	int dx = abs(x1-x0), sx = x0<x1 ? 1 : -1;
 	int dy = abs(y1-y0), sy = y0<y1 ? 1 : -1; 
