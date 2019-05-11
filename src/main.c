@@ -102,7 +102,7 @@ void drawObjZ(window_t* w, tgaInfo tgaData, int **zBuffer, int width, int height
 	int x[3]; int y[3];
 	int z[3], zMax;
 
-	vec3f_t luminance = {1, 0, 0};
+	vec3f_t luminance = {0, 0, -1};
 	vec3f_t cProduct= {0, 0, 0};
 	float dProduct = 0;
 
@@ -180,7 +180,7 @@ int main( int argc, char ** argv ) {
 		done = EventsUpdate( mainwindow );
 
 		// Effacement de l'écran avec une couleur
-		WindowDrawClearColor( mainwindow, 0, 0, 0);
+		WindowDrawClearColor( mainwindow, 255, 255, 255);
 
 		drawObjZ(mainwindow, tgaData, zBuffer, width, height);
 
