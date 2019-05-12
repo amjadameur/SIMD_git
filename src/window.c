@@ -142,7 +142,7 @@ void WindowDrawClearColor( window_t * w, Uint8 r, Uint8 g, Uint8 b ) {
 
 
 void WindowDrawPointZ( window_t * w, int zMax, int **zBuffer, int x, int y, Uint8 r, Uint8 g, Uint8 b ) {
-	if(zBuffer[x][y]<zMax) {
+	if(zMax > zBuffer[x][y]) {
 		zBuffer[x][y] = zMax;
 
 		Uint8 * ptr = w->framebuffer + 4*x + (w->height-1)*w->pitch - y*w->pitch;		

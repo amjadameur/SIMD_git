@@ -86,7 +86,7 @@ void drawObjZ(window_t* w, tgaInfo tgaData, int **zBuffer) {
 
 	windowXYZ winXYZ;
 
-	chosenPlane plane = MINUS_XZ;
+	chosenPlane plane = MINUS_YZ;
 
 	vec3f_t luminance = setLuminance(plane);
 	
