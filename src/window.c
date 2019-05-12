@@ -31,7 +31,7 @@ static Uint8 * WindowInitFramebuffer( window_t * w ) {
 	return buffer;
 }
 
-window_t * WindowInit( int width, int height, int bpp ) {
+window_t * WindowInit( int width, int height, int bpp, int depth) {
 
 	if ( SDL_Init( SDL_INIT_VIDEO ) != 0 ) {
 		printf( "SDL_Init Error: %s", SDL_GetError() );
@@ -94,6 +94,9 @@ window_t * WindowInit( int width, int height, int bpp ) {
 	mainwindow->sdlwindow	= sdlwindow;
 	mainwindow->renderer	= renderer;
 	mainwindow->texture		= texture;
+
+	mainwindow->depth       = depth;
+
 
 	return mainwindow;
 }

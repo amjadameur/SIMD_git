@@ -9,8 +9,6 @@
 #include "SDL2/SDL.h"
 
 
-#define DEPTH 250
-
 /**
  * Définition des types
  */
@@ -23,6 +21,7 @@ typedef struct window {
 	int			height;
 	int			bpp;
 	int			pitch;
+	int         depth;
 }window_t;
 
 /**
@@ -32,7 +31,7 @@ typedef struct window {
 /**
  * Initialise et ouvre une nouvelle fenêtre
  */
-window_t	*	WindowInit		( int width, int height, int bpp );
+window_t	*	WindowInit		( int width, int height, int bpp, int depth);
 
 /**
  * Ferme et detruit une fênetre

@@ -1,26 +1,8 @@
-#include "window.h"
-#include "events.h"
-#include "vector.h"
-#include "geometry.h"
-#include "model.h"
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-#include "string.h"
-#include "math.h"
-#include "sys/time.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string>
+
+#include "main.h"
 
 
-typedef struct tga_info {
-	int tgaWidth;
-	int tgaHeight;
-	unsigned char *tgaIm;
-} tgaInfo;
 
-
-#define MINUS_INF -99999
 
 void tgaRgb(tgaInfo tgaData, int x, int y, Uint8* r, Uint8* g, Uint8* b) {
 	Uint8 * ptr = tgaData.tgaIm + 3*x + 3*tgaData.tgaWidth*y;
@@ -93,7 +75,7 @@ int maxInt3(int a, int b, int c) {
 	return maxInt2(a, maxInt2(b, c));
 }
 
-void drawObjZ(window_t* w, tgaInfo tgaData, int **zBuffer, int width, int height) {
+void drawObjZ(window_t* w, tgaInfo tgaData, int **zBuffer) {
 	// Draw obj file
 	Uint8 r, g, b;
 	vec3f_t vect3tmp[3];
@@ -102,7 +84,12 @@ void drawObjZ(window_t* w, tgaInfo tgaData, int **zBuffer, int width, int height
 	int x[3]; int y[3];
 	int z[3], zMax;
 
-	vec3f_t luminance = {0, 0, -1};
+	windowXYZ winXYZ;
+
+	chosenPlane plane = MINUS_XZ;
+
+	vec3f_t luminance = setLuminance(plane);
+	
 	vec3f_t cProduct= {0, 0, 0};
 	float dProduct = 0;
 
@@ -117,9 +104,10 @@ void drawObjZ(window_t* w, tgaInfo tgaData, int **zBuffer, int width, int height
 		for (int i = 0; i < 3; ++i) {
 			vertexIdx = facetmp.v[i];				
 			vect3tmp[i] = ModelGetVertex(vertexIdx);
-			x[i] = ((width-1)/2) *(vect3tmp[i].x + 1);
-			y[i] = ((height-1)/2)*(vect3tmp[i].y + 1);
-			z[i] = ((DEPTH-1)/2)*(vect3tmp[i].z + 1);
+			winXYZ = getXYZ(w, plane, vect3tmp[i]);
+			x[i] = (int) winXYZ.x;
+			y[i] = (int) winXYZ.y;
+			z[i] = (int) winXYZ.z;
 		}
 		
 		zMax = maxInt3(z[0], z[1], z[2]);
@@ -139,6 +127,8 @@ int main( int argc, char ** argv ) {
 
 	const int width		= 1024;
 	const int height	= 768;
+	const int depth     = 255;
+
 
 	unsigned int fps = 0;
 	char *windowTitle = (char*) malloc(15*sizeof(char));
@@ -146,7 +136,7 @@ int main( int argc, char ** argv ) {
 	unsigned long int elapsedTimePerFrame  = 0;
 
 	// Ouverture d'une nouvelle fenêtre
-	window_t * mainwindow = WindowInit( width, height, 4 );
+	window_t * mainwindow = WindowInit( width, height, 4, depth);
 
 	int done = false;
 
@@ -180,9 +170,10 @@ int main( int argc, char ** argv ) {
 		done = EventsUpdate( mainwindow );
 
 		// Effacement de l'écran avec une couleur
-		WindowDrawClearColor( mainwindow, 255, 255, 255);
+		//WindowDrawClearColor( mainwindow, 255, 255, 255);
+		WindowDrawClearColor( mainwindow, 0, 0, 0);
 
-		drawObjZ(mainwindow, tgaData, zBuffer, width, height);
+		drawObjZ(mainwindow, tgaData, zBuffer);
 
 		WindowUpdate( mainwindow );
 
