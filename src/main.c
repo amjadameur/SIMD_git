@@ -3,36 +3,28 @@
 
 
 
-
-
-
+int **zBuffer;
 
 void drawObjZ(window_t* w, tgaInfo tgaData, vec3f_t luminance, chosenPlane plane) {
 	// Draw obj file
-	Uint8 r, g, b;
-	vec3f_t vect3tmp[3];
-	face_t  facetmp;
-	int vertexIdx = 0;
-	int x[3]; int y[3];
-	int z[3], zMax;
+	Uint8 r, g, b;            // texture d'un triangle
+	vec3f_t vect3tmp[3];      // les 3 sommets d'un triangle
+	face_t  facetmp;          // 
+	int vertexIdx = 0;		  // indice de la texture à extraire du vecteur g_texcoord	
+	int x[3], y[3], z[3];     // coordonnées des sommets d'un triangle donné 
+	int zMax;			      // la coordonnée z du point le plus proche "à l'écran"		
 
-	windowXYZ winXYZ;
+	windowXYZ winXYZ; // structure de donnée où l'on stocke les coordonnées (x, y) du point a dessiner et la profondeur z de ce dernier.
 
-	float faceLuminance;
-	
-	//////Z buffer ////////////////////////////////////////////////////////////////
-	int** zBuffer = (int**) malloc(w->width*sizeof(int*));
-	for (int c = 0; c < w->width; ++c)	{
-		zBuffer[c] = (int*) malloc(w->height*sizeof(int));
-	}
+	float faceLuminance; // elle représente la position d'un vecteur donnée par rapport à la source de la lumière.
 
-	///////////////////////////////////////////////////////////////////////////////////
-
+	/////// Initialisation du zBuffer /////////////////////////////////////////////////////////////////////
 	for (int r = 0; r < w->width; ++r) {
 		for (int c = 0; c < w->height; ++c) {
 			zBuffer[r][c] = MINUS_INF;
 		}
 	}
+	////////////////////////////////////////////////////////////////////////////
 
 	for (int j = 0; j < ModelFaces()->count; ++j) {
 		facetmp = ModelGetFace(j);
@@ -47,16 +39,15 @@ void drawObjZ(window_t* w, tgaInfo tgaData, vec3f_t luminance, chosenPlane plane
 		
 		zMax = maxInt3(z[0], z[1], z[2]);
 
-		faceLuminance = isFaceEnlighted(luminance, vect3tmp);
+		faceLuminance = isFaceEnlighted(luminance, vect3tmp); // produit scalaire entre la lumière et la normale du triangle
 
+		// Si le produit scalaire est négative ou nul, nous ne dessinons pas le triangle
 		if (faceLuminance>0)	{
 			faceLuminance = (faceLuminance > 1) ? 1 : faceLuminance;
-			findRgb(facetmp.vt, tgaData, &r, &g, &b);
+			findRgb(facetmp.vt, tgaData, &r, &g, &b);  // On récupère la texture du triangle
 			WindowDrawTriangleZ(w, zMax, zBuffer, x[0], y[0], x[1], y[1], x[2], y[2], faceLuminance*r, faceLuminance*g, faceLuminance*b);
 		}
 	}
-
-	freeIntMatrix(w->width, zBuffer);
 }
 
 int main( int argc, char ** argv ) {
@@ -88,14 +79,18 @@ int main( int argc, char ** argv ) {
 
 	tgaInfo tgaData = {tgaWidth, tgaHeight, tgaIm};
 
+	//////Z buffer ////////////////////////////////////////////////////////////////////
+    zBuffer = (int**) malloc(mainwindow->width*sizeof(int*));
+	for (int c = 0; c < mainwindow->width; ++c)	{
+		zBuffer[c] = (int*) malloc(mainwindow->height*sizeof(int));
+	}
 
-	//////////////////////////////////////////////////////////////////////
-
-	chosenPlane plane = MINUS_YZ;
+	///////////////////////////////////////////////////////////////////////////////////
+	chosenPlane plane = MINUS_XY;
 
 	vec3f_t luminance = setLuminance(plane);
 
-	//////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////
 
 	struct timeval timeBefore, timeAfter;
 
@@ -105,12 +100,12 @@ int main( int argc, char ** argv ) {
 	while ( !done ) {
 
 		// méthode pour regarder les 6 faces
-		if(++counter == 30) {
+		/*if(++counter == 30) {
 			counter = 0;
 			printf("%d\n", plane);
 			plane = (chosenPlane) ((int) plane + 1);
 			if (plane == PLUS_YZ+1) plane = (chosenPlane) 0; 
-		}
+		}*/
 
 		gettimeofday(&timeBefore, NULL);
 
@@ -127,7 +122,8 @@ int main( int argc, char ** argv ) {
 		gettimeofday(&timeAfter, NULL);
 
 		elapsedTimePerFrame = (timeAfter.tv_sec - timeBefore.tv_sec)*1000000 + (timeAfter.tv_usec - timeBefore.tv_usec);	
-		fps = (unsigned int) (1000000/elapsedTimePerFrame);
+		fps += (unsigned int) (1000000/elapsedTimePerFrame) ;
+		fps /= 2; // on prend la moyenne de deux acquisition pour stabiliser la valeur du FPS
 		sprintf(windowTitle, "FPS : %u", fps);
 		WindowSetTitle(mainwindow, windowTitle);
 	}
@@ -135,7 +131,7 @@ int main( int argc, char ** argv ) {
 
 	// Fermeture de la fenêtre
 	WindowDestroy( mainwindow );
-
+	freeIntMatrix(mainwindow->width, zBuffer); // Nous libérons la mémoire occupée par zBuffer
 	free(tgaIm);
 	freeVectors();
 

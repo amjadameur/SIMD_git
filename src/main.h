@@ -17,7 +17,6 @@
 
 typedef enum {MINUS_XY = 0, MINUS_XZ, MINUS_YZ, PLUS_XY, PLUS_XZ, PLUS_YZ} chosenPlane;
 
-
 typedef struct tga_info {
 	int tgaWidth;
 	int tgaHeight;
@@ -52,6 +51,7 @@ vec3f_t setLuminance(chosenPlane plane) {
 }
 
 void tgaRgb(tgaInfo tgaData, int x, int y, Uint8* r, Uint8* g, Uint8* b) {
+	// fonction servant à récuperer la texture d'un point dans le fichier tga
 	Uint8 * ptr = tgaData.tgaIm + 3*x + 3*tgaData.tgaWidth*y;
 	*b = *ptr++;
 	*g = *ptr++;
@@ -59,6 +59,7 @@ void tgaRgb(tgaInfo tgaData, int x, int y, Uint8* r, Uint8* g, Uint8* b) {
 }
 
 void findRgb(int *textureIdx, tgaInfo tgaData, Uint8* r, Uint8* g, Uint8* b) {
+	// récuperer et calculer la moyenne des textures des 3 points du triangle
 	int x = 0, y = 0;
 	int rTmp = 0, gTmp = 0, bTmp = 0;
 
@@ -79,22 +80,27 @@ void findRgb(int *textureIdx, tgaInfo tgaData, Uint8* r, Uint8* g, Uint8* b) {
 
 
 windowXYZ getXYZ(window_t* w, chosenPlane plane, vec3f_t vertexVect) {
+	// Récuperer les coordonnées du sommet par rapport au plan demandé
 	windowXYZ winXYZ;
 
+	// Les coordonnées du sommet dans le fichier .obj
 	float xIm(vertexVect.x);
 	float yIm(vertexVect.y);
 	float zIm(vertexVect.z);
 
+	// Multiplexage des coordonnées suivant le plan demané
 	if(plane == MINUS_XY || plane == PLUS_XY) winXYZ = {xIm, yIm, zIm}; // profondeur en Z
 	if(plane == MINUS_YZ || plane == PLUS_YZ) winXYZ = {zIm, yIm, xIm}; // profondeur en X
 	if(plane == MINUS_XZ || plane == PLUS_XZ) winXYZ = {xIm, zIm, yIm}; // profondeur en Y
 
+	// Adaptation des coordonnées aux dimensions de la fenêtre d'affichage
 	winXYZ.x = ((w->width -1)/2) *(winXYZ.x + 1);
 	winXYZ.y = ((w->height-1)/2) *(winXYZ.y + 1);
 	winXYZ.z = ((w->depth -1)/2) *(winXYZ.z + 1);
 	
+	// Nous inversons la pronfondeur dans le cas écheant 
 	if(plane >= PLUS_XY && plane <= PLUS_YZ) {
-		winXYZ.z *= -1; // ceci permet d'inverser la profondeur.
+		winXYZ.z *= -1; 
 	}
 
 	return winXYZ;
@@ -111,22 +117,26 @@ void freeIntMatrix(int width, int **matrix) {
 
 
 void subVect3f(vec3f_t* v2, vec3f_t* v1) {
+	// Soustraction des coordonnées XYZ
 	v2->x = v2->x - v1->x;
 	v2->y = v2->y - v1->y;
 	v2->z = v2->z - v1->z;
 }
 
 vec3f_t crossProduct(vec3f_t a, vec3f_t b, vec3f_t c) {
+	// fonction calculons le produit vectoriel normalisé
 	vec3f_t vProduct;
 	
-	subVect3f(&b, &a);
+	// on prend le sommet "a" comment référence pour les sommets "b" et "c"
+	subVect3f(&b, &a); 
 	subVect3f(&c, &a);
 
+	// produit vectoriel
 	vProduct.x = c.y*b.z - c.z*b.y;
 	vProduct.y = c.z*b.x - c.x*b.z;
 	vProduct.z = c.x*b.y - c.y*b.x;
 
-	// Normalizing
+	// Normalisation
 	float magX = vProduct.x*vProduct.x;
 	float magY = vProduct.y*vProduct.y;
 	float magZ = vProduct.z*vProduct.z;
@@ -141,11 +151,12 @@ vec3f_t crossProduct(vec3f_t a, vec3f_t b, vec3f_t c) {
 }
 
 float dotProduct(vec3f_t a, vec3f_t b) {
+	// Produit scalaire
 	return a.x*b.x + a.y*b.y + a.z*b.z;
 }
 
 float isFaceEnlighted(vec3f_t luminance, vec3f_t *vect3tmp) {
-
+	// cette fonction calcule la normale du triangle, puis fait le prduit scalaire de cette normale avec la source de la lumière
 	vec3f_t cProduct= {0, 0, 0};
 	float dProduct = 0;
 
