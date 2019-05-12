@@ -15,7 +15,7 @@
 
 #define MINUS_INF -99999
 
-typedef enum {MINUS_XY, PLUS_XZ, MINUS_YZ, PLUS_XY, PLUS_XZ, MINUS_YZ} chosenPlane;
+typedef enum {MINUS_XY = 0, MINUS_XZ, MINUS_YZ, PLUS_XY, PLUS_XZ, PLUS_YZ} chosenPlane;
 
 
 typedef struct tga_info {
@@ -58,9 +58,18 @@ windowXYZ getXYZ(window_t* w, chosenPlane plane, vec3f_t vertexVect) {
 	winXYZ.y = ((w->height-1)/2) *(winXYZ.y + 1);
 	winXYZ.z = ((w->depth -1)/2) *(winXYZ.z + 1);
 	
-	if(plane >= MINUS_XY && plane <= MINUS_YZ) {
+	if(plane >= PLUS_XY && plane <= PLUS_YZ) {
 		winXYZ.z *= -1; // ceci permet d'inverser la profondeur.
 	}
 
 	return winXYZ;
+}
+
+
+void freeIntMatrix(int width, int **matrix) {
+	for (int w = 0; w < width; ++w)
+	{
+		free(matrix[w]);
+	}
+	free(matrix);
 }

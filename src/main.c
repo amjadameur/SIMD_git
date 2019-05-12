@@ -75,7 +75,7 @@ int maxInt3(int a, int b, int c) {
 	return maxInt2(a, maxInt2(b, c));
 }
 
-void drawObjZ(window_t* w, tgaInfo tgaData, int **zBuffer) {
+void drawObjZ(window_t* w, tgaInfo tgaData, vec3f_t luminance, chosenPlane plane) {
 	// Draw obj file
 	Uint8 r, g, b;
 	vec3f_t vect3tmp[3];
@@ -86,10 +86,15 @@ void drawObjZ(window_t* w, tgaInfo tgaData, int **zBuffer) {
 
 	windowXYZ winXYZ;
 
-	chosenPlane plane = MINUS_YZ;
-
-	vec3f_t luminance = setLuminance(plane);
 	
+	//////Z buffer ////////////////////////////////////////////////////////////////
+	int** zBuffer = (int**) malloc(w->width*sizeof(int*));
+	for (int c = 0; c < w->width; ++c)	{
+		zBuffer[c] = (int*) malloc(w->height*sizeof(int));
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////
+
 	vec3f_t cProduct= {0, 0, 0};
 	float dProduct = 0;
 
@@ -121,6 +126,8 @@ void drawObjZ(window_t* w, tgaInfo tgaData, int **zBuffer) {
 			WindowDrawTriangleZ(w, zMax, zBuffer, x[0], y[0], x[1], y[1], x[2], y[2], dProduct*r, dProduct*g, dProduct*b);
 		}
 	}
+
+	freeIntMatrix(w->width, zBuffer);
 }
 
 int main( int argc, char ** argv ) {
@@ -152,39 +159,47 @@ int main( int argc, char ** argv ) {
 
 	tgaInfo tgaData = {tgaWidth, tgaHeight, tgaIm};
 
-	//////Z buffer ////////////////////////////////////////////////////////////////
-	int** zBuffer = (int**) malloc(width*sizeof(int*));
-	for (int c = 0; c < width; ++c)	{
-		zBuffer[c] = (int*) malloc(height*sizeof(int));
-	}
+
+	//////////////////////////////////////////////////////////////////////
+
+	chosenPlane plane = MINUS_YZ;
+
+	vec3f_t luminance = setLuminance(plane);
 
 	//////////////////////////////////////////////////////////////////////
 
 	struct timeval timeBefore, timeAfter;
 
+	unsigned int counter = 0;
+
 	// Tant que l'utilisateur ne ferme pas la fenêtre
 	while ( !done ) {
+
+		// méthode pour regarder les 6 faces
+		if(++counter == 30) {
+			counter = 0;
+			printf("%d\n", plane);
+			plane = (chosenPlane) ((int) plane + 1);
+			if (plane == PLUS_YZ+1) plane = (chosenPlane) 0; 
+		}
+
 		gettimeofday(&timeBefore, NULL);
 
 		// Mise à jour et traitement des evênements de la fenêtre
 		done = EventsUpdate( mainwindow );
 
 		// Effacement de l'écran avec une couleur
-		//WindowDrawClearColor( mainwindow, 255, 255, 255);
 		WindowDrawClearColor( mainwindow, 0, 0, 0);
 
-		drawObjZ(mainwindow, tgaData, zBuffer);
+		drawObjZ(mainwindow, tgaData, luminance, plane);
 
 		WindowUpdate( mainwindow );
 
 		gettimeofday(&timeAfter, NULL);
 
-		elapsedTimePerFrame = (timeAfter.tv_sec - timeBefore.tv_sec)*1000000 + (timeAfter.tv_usec - timeBefore.tv_usec);
-		
+		elapsedTimePerFrame = (timeAfter.tv_sec - timeBefore.tv_sec)*1000000 + (timeAfter.tv_usec - timeBefore.tv_usec);	
 		fps = (unsigned int) (1000000/elapsedTimePerFrame);
-
 		sprintf(windowTitle, "FPS : %u", fps);
-
 		WindowSetTitle(mainwindow, windowTitle);
 	}
 
