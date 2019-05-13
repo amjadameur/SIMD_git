@@ -18,11 +18,21 @@ OBJECTS 	:= $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 rm 		= rm -f
 
 
+mainMake : remove all execDiablo
 
-evr : remove all exec
+diablo : remove all execDiablo
+head   : remove all execHead
+body   : remove all execBody
 
-exec :
-	./bin/eirb3d
+execDiablo :
+	./bin/eirb3d bin/data/diablo.obj bin/data/diablo_diffuse.tga
+
+execHead :
+	./bin/eirb3d bin/data/head.obj bin/data/head_diffuse.tga
+
+execBody :
+	./bin/eirb3d bin/data/body.obj bin/data/body_diffuse.tga
+
 
 all: $(BINDIR)/$(TARGET)
 

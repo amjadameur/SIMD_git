@@ -76,13 +76,13 @@ int main( int argc, char ** argv ) {
 
 
 	///// Load obj file ///////////////////////////////////////////////////////////////////
-	ModelLoad("bin/data/head.obj");
+	ModelLoad(argv[1]);
 
 	///// TGA //////////////////////////////////////////////////////////////
 	int tgaWidth, tgaHeight; 
 	int comp;
 	int req_comp = 4; // RGB
-	unsigned char* tgaIm = stbi_tga_load("bin/data/head_diffuse.tga", &tgaWidth, &tgaHeight, &comp, req_comp);
+	unsigned char* tgaIm = stbi_tga_load(argv[2], &tgaWidth, &tgaHeight, &comp, req_comp);
 	//printf("comp : %d\n", comp);
 	tgaInfo tgaData = {tgaWidth, tgaHeight, tgaIm};
 
@@ -109,7 +109,6 @@ int main( int argc, char ** argv ) {
 		// méthode pour regarder les 6 faces
 		if(++counter == 40) {
 			counter = 0;
-			printf("%d\n", plane);
 			plane = (chosenPlane) (plane + 1);
 			if (plane == PLUS_YZ+1) plane = (chosenPlane) 0; 
 			luminance = setLuminance(plane);
