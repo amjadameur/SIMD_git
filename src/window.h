@@ -61,8 +61,8 @@ void			WindowDrawPoint		( window_t * w, int x, int y, Uint8 r, Uint8 g, Uint8 b 
 //void 			WindowDrawTriangle  ( window_t * w, int x0, int y0, int x1, int y1, int x2, int y2, Uint8 r, Uint8 g, Uint8 b );
 
 
-void			WindowDrawPointZ	( window_t * w, int zMax, int **zBuffer, int x, int y, Uint8 r, Uint8 g, Uint8 b );
-void			WindowDrawLineZ		( window_t * w, int zMax, int **zBuffer, int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b );
-void 			WindowDrawTriangleZ ( window_t * w, int zMax, int **zBuffer, int x0, int y0, int x1, int y1, int x2, int y2, Uint8 r, Uint8 g, Uint8 b );
+void			WindowDrawPointZ	( window_t * w, int z, int **zBuffer, int x, int y, Uint8 r, Uint8 g, Uint8 b );
+void			WindowDrawLineZ		( window_t * w, int z, int **zBuffer, int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b );
+void 			WindowDrawTriangleZ ( window_t * w, int z, int **zBuffer, int x0, int y0, int x1, int y1, int x2, int y2, Uint8 r, Uint8 g, Uint8 b );
 
 #endif //__WINDOW_H__

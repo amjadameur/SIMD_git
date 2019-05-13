@@ -1,7 +1,7 @@
 
 #include "main.h"
 
-
+//
 
 int **zBuffer;
 
@@ -12,7 +12,7 @@ void drawObjZ(window_t* w, tgaInfo tgaData, vec3f_t luminance, chosenPlane plane
 	face_t  facetmp;          // 
 	int vertexIdx = 0;		  // indice de la texture à extraire du vecteur g_texcoord	
 	int x[3], y[3], z[3];     // coordonnées des sommets d'un triangle donné 
-	int zMax;			      // la coordonnée z du point le plus proche "à l'écran"		
+	int zMean;			      // la coordonnée z du point le plus proche "à l'écran"		
 
 	windowXYZ winXYZ; // structure de donnée où l'on stocke les coordonnées (x, y) du point a dessiner et la profondeur z de ce dernier.
 
@@ -37,15 +37,16 @@ void drawObjZ(window_t* w, tgaInfo tgaData, vec3f_t luminance, chosenPlane plane
 			z[i] = (int) winXYZ.z;
 		}
 		
-		zMax = maxInt3(z[0], z[1], z[2]);
+		zMean = (z[0] + z[1] + z[2])/3; // barycentre de la pronfondeur du triangle
 
 		faceLuminance = isFaceEnlighted(luminance, vect3tmp); // produit scalaire entre la lumière et la normale du triangle
 
 		// Si le produit scalaire est négative ou nul, nous ne dessinons pas le triangle
 		if (faceLuminance>0)	{
 			faceLuminance = (faceLuminance > 1) ? 1 : faceLuminance;
+
 			findRgb(facetmp.vt, tgaData, &r, &g, &b);  // On récupère la texture du triangle
-			WindowDrawTriangleZ(w, zMax, zBuffer, x[0], y[0], x[1], y[1], x[2], y[2], faceLuminance*r, faceLuminance*g, faceLuminance*b);
+			WindowDrawTriangleZ(w, zMean, zBuffer, x[0], y[0], x[1], y[1], x[2], y[2], faceLuminance*r, faceLuminance*g, faceLuminance*b);
 		}
 	}
 }
@@ -74,9 +75,9 @@ int main( int argc, char ** argv ) {
 	///// TGA //////////////////////////////////////////////////////////////
 	int tgaWidth, tgaHeight; 
 	int comp;
-	int req_comp = 3; // RGB
+	int req_comp = 4; // RGB
 	unsigned char* tgaIm = stbi_tga_load("bin/data/diablo_diffuse.tga", &tgaWidth, &tgaHeight, &comp, req_comp);
-
+	//printf("comp : %d\n", comp);
 	tgaInfo tgaData = {tgaWidth, tgaHeight, tgaIm};
 
 	//////Z buffer ////////////////////////////////////////////////////////////////////

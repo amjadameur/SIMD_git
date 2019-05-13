@@ -52,7 +52,7 @@ vec3f_t setLuminance(chosenPlane plane) {
 
 void tgaRgb(tgaInfo tgaData, int x, int y, Uint8* r, Uint8* g, Uint8* b) {
 	// fonction servant à récuperer la texture d'un point dans le fichier tga
-	Uint8 * ptr = tgaData.tgaIm + 3*x + 3*tgaData.tgaWidth*y;
+	Uint8 * ptr = tgaData.tgaIm + 4*x + (4*tgaData.tgaWidth)*y;
 	*b = *ptr++;
 	*g = *ptr++;
 	*r = *ptr++;
@@ -61,21 +61,18 @@ void tgaRgb(tgaInfo tgaData, int x, int y, Uint8* r, Uint8* g, Uint8* b) {
 void findRgb(int *textureIdx, tgaInfo tgaData, Uint8* r, Uint8* g, Uint8* b) {
 	// récuperer et calculer la moyenne des textures des 3 points du triangle
 	int x = 0, y = 0;
-	int rTmp = 0, gTmp = 0, bTmp = 0;
 
-	for (int i = 0; i < 3; ++i)
-	{
-		x = tgaData.tgaWidth *ModelGetTexcoord(textureIdx[i]).x;
-		y = tgaData.tgaHeight*ModelGetTexcoord(textureIdx[i]).y;
-		tgaRgb(tgaData, x, y, r, g, b);	
-		rTmp += *r;
-		gTmp += *g;
-		bTmp += *b;
+	for (int i = 0; i < 3; ++i)	{
+		x += tgaData.tgaWidth *ModelGetTexcoord(textureIdx[i]).x;
+		y += tgaData.tgaHeight*ModelGetTexcoord(textureIdx[i]).y;
 	}
 
-	*r = (Uint8) (rTmp/3);
-	*g = (Uint8) (gTmp/3);
-	*b = (Uint8) (bTmp/3);
+	x /= 3;
+	y /= 3;
+
+	y = tgaData.tgaHeight-1 - y;
+
+	tgaRgb(tgaData, x, y, r, g, b);	
 }
 
 
@@ -107,48 +104,6 @@ windowXYZ getXYZ(window_t* w, chosenPlane plane, vec3f_t vertexVect) {
 }
 
 
-void freeIntMatrix(int width, int **matrix) {
-	for (int w = 0; w < width; ++w)
-	{
-		free(matrix[w]);
-	}
-	free(matrix);
-}
-
-
-void subVect3f(vec3f_t* v2, vec3f_t* v1) {
-	// Soustraction des coordonnées XYZ
-	v2->x = v2->x - v1->x;
-	v2->y = v2->y - v1->y;
-	v2->z = v2->z - v1->z;
-}
-
-vec3f_t crossProduct(vec3f_t a, vec3f_t b, vec3f_t c) {
-	// fonction calculons le produit vectoriel normalisé
-	vec3f_t vProduct;
-	
-	// on prend le sommet "a" comment référence pour les sommets "b" et "c"
-	subVect3f(&b, &a); 
-	subVect3f(&c, &a);
-
-	// produit vectoriel
-	vProduct.x = c.y*b.z - c.z*b.y;
-	vProduct.y = c.z*b.x - c.x*b.z;
-	vProduct.z = c.x*b.y - c.y*b.x;
-
-	// Normalisation
-	float magX = vProduct.x*vProduct.x;
-	float magY = vProduct.y*vProduct.y;
-	float magZ = vProduct.z*vProduct.z;
-
-	float magnitude = sqrt(magX+magY+magZ);
-
-	vProduct.x = vProduct.x/magnitude;
-	vProduct.y = vProduct.y/magnitude;
-	vProduct.z = vProduct.z/magnitude; 
-
-	return vProduct;
-}
 
 float dotProduct(vec3f_t a, vec3f_t b) {
 	// Produit scalaire
@@ -157,12 +112,25 @@ float dotProduct(vec3f_t a, vec3f_t b) {
 
 float isFaceEnlighted(vec3f_t luminance, vec3f_t *vect3tmp) {
 	// cette fonction calcule la normale du triangle, puis fait le prduit scalaire de cette normale avec la source de la lumière
-	vec3f_t cProduct= {0, 0, 0};
-	float dProduct = 0;
 
-	cProduct = crossProduct(vect3tmp[0], vect3tmp[1], vect3tmp[2]);	
-	dProduct = dotProduct(luminance, cProduct);
+	// on prend vect3tmp[0] comme référence
+	vec3f_t v1 = Vec3fSub(vect3tmp[1], vect3tmp[0]); 
+	vec3f_t v2 = Vec3fSub(vect3tmp[2], vect3tmp[0]);
+	
+	// produit vectoriel
+	vec3f_t cProduct = Vec3fCross(v2, v1);
 
-	return dProduct;
+	// normalisation
+	cProduct = Vec3fNormalize(cProduct);
+	
+	// produit scalaire
+	return dotProduct(luminance, cProduct);
 }
 
+void freeIntMatrix(int width, int **matrix) {
+	for (int w = 0; w < width; ++w)
+	{
+		free(matrix[w]);
+	}
+	free(matrix);
+}
