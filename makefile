@@ -17,6 +17,13 @@ INCLUDES 	:= $(wildcard $(SRCDIR)/*.h)
 OBJECTS 	:= $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 rm 		= rm -f
 
+
+
+evr : remove all exec
+
+exec :
+	./bin/eirb3d
+
 all: $(BINDIR)/$(TARGET)
 
 $(BINDIR)/$(TARGET): $(OBJECTS)
@@ -24,6 +31,7 @@ $(BINDIR)/$(TARGET): $(OBJECTS)
 
 $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
 	@$(CC) $(CFLAGS) -c $< -o $@
+
 
 .PHONY: clean
 clean:

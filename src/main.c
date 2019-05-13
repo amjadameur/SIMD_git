@@ -51,6 +51,12 @@ void drawObjZ(window_t* w, tgaInfo tgaData, vec3f_t luminance, chosenPlane plane
 	}
 }
 
+unsigned int getFPS(struct timeval timeBefore, struct timeval timeAfter) {
+	unsigned long int elapsedTimePerFrame = (timeAfter.tv_sec - timeBefore.tv_sec)*1000000 + (timeAfter.tv_usec - timeBefore.tv_usec);	
+	return (unsigned int) (1000000/elapsedTimePerFrame) ;
+}
+
+
 int main( int argc, char ** argv ) {
 
 	const int width		= 1024;
@@ -61,7 +67,7 @@ int main( int argc, char ** argv ) {
 	unsigned int fps = 0;
 	char *windowTitle = (char*) malloc(15*sizeof(char));
 
-	unsigned long int elapsedTimePerFrame  = 0;
+	
 
 	// Ouverture d'une nouvelle fenêtre
 	window_t * mainwindow = WindowInit( width, height, 4, depth);
@@ -70,18 +76,18 @@ int main( int argc, char ** argv ) {
 
 
 	///// Load obj file ///////////////////////////////////////////////////////////////////
-	ModelLoad("bin/data/diablo.obj");
+	ModelLoad("bin/data/head.obj");
 
 	///// TGA //////////////////////////////////////////////////////////////
 	int tgaWidth, tgaHeight; 
 	int comp;
 	int req_comp = 4; // RGB
-	unsigned char* tgaIm = stbi_tga_load("bin/data/diablo_diffuse.tga", &tgaWidth, &tgaHeight, &comp, req_comp);
+	unsigned char* tgaIm = stbi_tga_load("bin/data/head_diffuse.tga", &tgaWidth, &tgaHeight, &comp, req_comp);
 	//printf("comp : %d\n", comp);
 	tgaInfo tgaData = {tgaWidth, tgaHeight, tgaIm};
 
 	//////Z buffer ////////////////////////////////////////////////////////////////////
-    zBuffer = (int**) malloc(mainwindow->width*sizeof(int*));
+	zBuffer = (int**) malloc(mainwindow->width*sizeof(int*));
 	for (int c = 0; c < mainwindow->width; ++c)	{
 		zBuffer[c] = (int*) malloc(mainwindow->height*sizeof(int));
 	}
@@ -101,13 +107,14 @@ int main( int argc, char ** argv ) {
 	while ( !done ) {
 
 		// méthode pour regarder les 6 faces
-		/*if(++counter == 30) {
+		if(++counter == 40) {
 			counter = 0;
 			printf("%d\n", plane);
-			plane = (chosenPlane) ((int) plane + 1);
+			plane = (chosenPlane) (plane + 1);
 			if (plane == PLUS_YZ+1) plane = (chosenPlane) 0; 
-		}*/
-
+			luminance = setLuminance(plane);
+		}
+		
 		gettimeofday(&timeBefore, NULL);
 
 		// Mise à jour et traitement des evênements de la fenêtre
@@ -115,16 +122,15 @@ int main( int argc, char ** argv ) {
 
 		// Effacement de l'écran avec une couleur
 		WindowDrawClearColor( mainwindow, 0, 0, 0);
-
+		
 		drawObjZ(mainwindow, tgaData, luminance, plane);
 
 		WindowUpdate( mainwindow );
 
 		gettimeofday(&timeAfter, NULL);
 
-		elapsedTimePerFrame = (timeAfter.tv_sec - timeBefore.tv_sec)*1000000 + (timeAfter.tv_usec - timeBefore.tv_usec);	
-		fps += (unsigned int) (1000000/elapsedTimePerFrame) ;
-		fps /= 2; // on prend la moyenne de deux acquisition pour stabiliser la valeur du FPS
+		fps = getFPS(timeBefore, timeAfter);
+		
 		sprintf(windowTitle, "FPS : %u", fps);
 		WindowSetTitle(mainwindow, windowTitle);
 	}

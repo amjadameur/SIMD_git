@@ -151,7 +151,7 @@ bool ModelLoad(char * objfilename) {
 		buffer[0] = '\0';
 	}
 
-	showVectors();
+	//showVectors();
 
 	vect3tmp = NULL;
 	facetmp = NULL;
